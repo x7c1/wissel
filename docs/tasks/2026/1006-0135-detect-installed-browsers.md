@@ -86,9 +86,9 @@ sorts before the first only when compared case-insensitively, a
 - [x] `Cargo.toml` of the crate depends on `gio` and not on `gtk4` or
   `libadwaita`.
 
-### Manual / on-hardware (verified by a human before merge)
+### Before merge (verified outside the check command)
 
-- [ ] On the development machine, `cargo run -- --list` shows Firefox,
+- [x] On the development machine, `cargo run -- --list` shows Firefox,
   Google Chrome once, Vivaldi, Web (Epiphany) and the user's custom Firefox
   entry, and does not show wissel while `make dev-install` is in effect.
 
