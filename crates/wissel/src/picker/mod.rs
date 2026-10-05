@@ -21,8 +21,8 @@ const APP_ID: &str = "io.github.x7c1.wissel";
 ///
 /// Returns the chosen browser, or `None` when the user cancelled.
 pub fn pick(urls: &[String], browsers: Vec<Browser>) -> Option<Browser> {
-    // Every invocation needs its own window and its own answer on stdout, so
-    // the application must not hand its work over to a running instance.
+    // Every invocation needs its own window and its own answer, so the
+    // application must not hand its work over to a running instance.
     let app = adw::Application::builder()
         .application_id(APP_ID)
         .flags(gio::ApplicationFlags::NON_UNIQUE)

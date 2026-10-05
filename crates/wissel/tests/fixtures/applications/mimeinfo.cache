@@ -1,4 +1,4 @@
 [MIME Cache]
 text/plain=editor.desktop;
-x-scheme-handler/http=beta.desktop;hidden.desktop;io.github.x7c1.wissel.desktop;
-x-scheme-handler/https=alpha.desktop;beta.desktop;hidden.desktop;io.github.x7c1.wissel.desktop;
+x-scheme-handler/http=beta.desktop;hidden.desktop;io.github.x7c1.wissel.desktop;recorder.desktop;
+x-scheme-handler/https=alpha.desktop;beta.desktop;hidden.desktop;io.github.x7c1.wissel.desktop;recorder.desktop;

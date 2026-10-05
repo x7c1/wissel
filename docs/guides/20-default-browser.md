@@ -51,17 +51,16 @@ xdg-settings get default-web-browser
 - Settings → Apps → Default Apps → Web → choose **wissel**
 - `xdg-settings set default-web-browser io.github.x7c1.wissel.desktop`
 
-To check, open a link. wissel shows its picker; from a terminal, the desktop
-id of the browser you choose is printed there. wissel does not launch that
-browser yet, so the link does not open; restore the previous default (see
-[Undo](#undo)) when you are done checking:
+To check, open a link. wissel shows its picker, and the link opens in the
+browser you choose:
 
 ```bash
 xdg-open https://example.com
 ```
 
-From a GUI application, the output lands in the user journal under the
-identifier `io.github.x7c1.wissel.desktop`:
+If the browser cannot be launched, wissel prints the reason on stderr. From a
+GUI application, that output lands in the user journal under the identifier
+`io.github.x7c1.wissel.desktop`:
 
 ```bash
 journalctl --user -t io.github.x7c1.wissel.desktop -n 5

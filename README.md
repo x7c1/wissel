@@ -10,7 +10,7 @@ Pick a browser every time you open a link.
 
 ## Status
 
-Pre-0.1. Under active development; nothing to install yet. The first target is Ubuntu (GNOME) on Wayland.
+Pre-0.1. Usable from a source checkout: set wissel as the default browser and every link opens in the browser you pick. There is no packaged release yet. The first target is Ubuntu (GNOME) on Wayland.
 
 ## Getting started
 
