@@ -2,7 +2,7 @@
 
 BIN := $(CURDIR)/target/debug/wissel
 APPS_DIR := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)/applications
-DESKTOP := $(APPS_DIR)/wissel.desktop
+DESKTOP := $(APPS_DIR)/io.github.x7c1.wissel.desktop
 
 .PHONY: build dev-install dev-uninstall
 
@@ -14,7 +14,7 @@ build:
 # target/debug is not on PATH. Does not change the default browser.
 dev-install: build
 	mkdir -p $(APPS_DIR)
-	sed 's|^Exec=wissel |Exec=$(BIN) |' data/wissel.desktop > $(DESKTOP)
+	sed 's|^Exec=wissel |Exec=$(BIN) |' data/io.github.x7c1.wissel.desktop > $(DESKTOP)
 	update-desktop-database $(APPS_DIR)
 	@echo "installed $(DESKTOP)"
 

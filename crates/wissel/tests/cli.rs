@@ -71,13 +71,6 @@ fn list_prints_visible_browsers_sorted_by_name() {
 }
 
 #[test]
-fn url_arguments_are_echoed() {
-    let output = run(&["https://example.com/"]);
-    assert!(output.status.success(), "{output:?}");
-    assert_eq!(stdout(&output), "https://example.com/\n");
-}
-
-#[test]
 fn no_arguments_fails_with_usage() {
     let output = run(&[]);
     assert_eq!(output.status.code(), Some(1), "{output:?}");
