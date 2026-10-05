@@ -7,3 +7,4 @@ description = "Pick a browser every time you open a link"
 repository = "https://github.com/x7c1/wissel"
 
 [dependencies]
+gio = "0.22.10"

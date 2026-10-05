@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=wissel
+Exec=/bin/true %u
+Icon=web-browser
+MimeType=x-scheme-handler/http;x-scheme-handler/https;

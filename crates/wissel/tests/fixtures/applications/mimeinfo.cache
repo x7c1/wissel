@@ -1,0 +1,4 @@
+[MIME Cache]
+text/plain=editor.desktop;
+x-scheme-handler/http=beta.desktop;hidden.desktop;wissel.desktop;
+x-scheme-handler/https=alpha.desktop;beta.desktop;hidden.desktop;wissel.desktop;
