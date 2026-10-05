@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Beta Browser
+Exec=/bin/true %u
+Icon=beta-browser
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
