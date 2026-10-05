@@ -85,12 +85,12 @@ The key-mapping module carries the unit tests.
 
 ### Before merge (verified outside the check command)
 
-- [ ] On the development machine, `cargo run -- https://example.com` opens a
+- [x] On the development machine, `cargo run -- https://example.com` opens a
   window that shows the URL and lists the same browsers as `--list`, each
   with its icon, name and shortcut hint, with the first row focused.
-- [ ] Clicking a row prints that row's desktop id and exits 0; pressing its
+- [x] Clicking a row prints that row's desktop id and exits 0; pressing its
   digit does the same; Escape exits 1 with nothing on stdout.
-- [ ] With `make dev-install` in effect and wissel set as the default
+- [x] With `make dev-install` in effect and wissel set as the default
   browser, `xdg-open https://example.com` shows the picker, and the window
   appears in the shell as wissel. The previous default is restored
   afterwards.
