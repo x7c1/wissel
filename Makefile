@@ -1,4 +1,4 @@
-# Development helpers. Packaging for end users (deb) is not here yet.
+# Development helpers.
 
 BIN := $(CURDIR)/target/debug/wissel
 APPS_DIR := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)/applications
@@ -18,9 +18,8 @@ dev-install: build
 	update-desktop-database $(APPS_DIR)
 	@echo "installed $(DESKTOP)"
 
-# Remove the desktop entry. If wissel is still the default browser, the
-# desktop falls back to the next candidate; see docs/guides/20-default-browser.md
-# for restoring the previous default explicitly.
+# Remove the desktop entry. Restore the previous default browser first;
+# see docs/guides/20-default-browser.md.
 dev-uninstall:
 	rm -f $(DESKTOP)
 	update-desktop-database $(APPS_DIR)

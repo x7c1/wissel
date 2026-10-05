@@ -18,13 +18,8 @@ Two independent layers decide what opens a link.
    `update-desktop-database`. Being a candidate is what makes an app appear in
    Settings → Apps → Default Apps → Web.
 2. **Default.** `~/.config/mimeapps.list` records, per MIME type, which
-   candidate is the default. It is per user; a package cannot and should not
-   set it. Lower-priority layers (`/etc/xdg/mimeapps.list`, the distribution's
-   `ubuntu-mimeapps.list`) apply only when the user has not chosen.
-
-Applications resolve the link through GIO or `xdg-open`, which read both
-layers. Sandboxed apps (snap, Flatpak) go through `xdg-desktop-portal`, which
-resolves on the host the same way.
+   candidate is the default. It is per-user state, so installing wissel never
+   changes it.
 
 `data/wissel.desktop` is the entry wissel ships. `Exec=wissel %u` receives the
 URL as the first argument.
@@ -41,33 +36,27 @@ make dev-install
 gio mime x-scheme-handler/https   # wissel.desktop appears under "Recommended applications"
 ```
 
-This only makes wissel a candidate. Make it the default with either of these;
-they are equivalent and both write `~/.config/mimeapps.list`:
-
-- Settings → Apps → Default Apps → Web → choose **wissel**
-- `xdg-settings set default-web-browser wissel.desktop`
-
-Note the previous default first so you can restore it:
+This only makes wissel a candidate. Note the current default so you can
+restore it later, then make wissel the default with either of these; both
+write `~/.config/mimeapps.list`:
 
 ```bash
 xdg-settings get default-web-browser
 ```
 
-Then open a link. From a terminal, wissel inherits the terminal and prints
-the URL there:
+- Settings → Apps → Default Apps → Web → choose **wissel**
+- `xdg-settings set default-web-browser wissel.desktop`
+
+To check, open a link. From a terminal, wissel prints the URL there:
 
 ```bash
 xdg-open https://example.com
 ```
 
-From a GUI application the launch goes through the desktop (or the portal, for
-sandboxed apps), and the output lands in the user journal under the
+From a GUI application, the output lands in the user journal under the
 identifier `wissel.desktop`:
 
 ```bash
-gdbus call --session --dest org.freedesktop.portal.Desktop \
-  --object-path /org/freedesktop/portal/desktop \
-  --method org.freedesktop.portal.OpenURI.OpenURI "" "https://example.com" "{}"
 journalctl --user -t wissel.desktop -n 5
 ```
 
@@ -79,14 +68,3 @@ Restore the previous default, then remove the entry:
 xdg-settings set default-web-browser <previous>.desktop
 make dev-uninstall
 ```
-
-Removing the entry while wissel is still the default does not break link
-opening: GIO skips candidates that no longer exist and falls back to the next
-one. The stale line in `mimeapps.list` stays until the user picks another
-browser.
-
-## Not covered
-
-- Debian's `update-alternatives --config x-www-browser` is a separate,
-  terminal-oriented mechanism (`sensible-browser`). GNOME does not consult it.
-- wissel does not yet offer to make itself the default from its own UI.
