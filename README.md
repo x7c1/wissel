@@ -14,6 +14,9 @@ Pre-0.1. Under active development; nothing to install yet. The first target is U
 
 ## Getting started
 
+Building needs Rust, `pkg-config`, and the GLib development files
+(`sudo apt install pkg-config libglib2.0-dev` on Ubuntu).
+
 ```bash
 git clone https://github.com/x7c1/wissel.git
 cd wissel
