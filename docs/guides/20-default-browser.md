@@ -21,19 +21,23 @@ Two independent layers decide what opens a link.
    candidate is the default. It is per-user state, so installing wissel never
    changes it.
 
-`data/wissel.desktop` is the entry wissel ships. `Exec=wissel %u` receives the
-URL as the first argument.
+`data/io.github.x7c1.wissel.desktop` is the entry wissel ships. `Exec=wissel %u`
+receives the URL as the first argument. The file name matches wissel's
+application id, `io.github.x7c1.wissel`: on Wayland, GNOME links a window to
+its desktop entry by that match, which gives the picker its name and icon in
+the shell.
 
 ## Development setup
 
 The debug binary is not on `PATH`, so the development entry points at its
 absolute path. `make dev-install` builds, writes the entry to
-`~/.local/share/applications/wissel.desktop` with that path, and refreshes the
-index.
+`~/.local/share/applications/io.github.x7c1.wissel.desktop` with that path, and
+refreshes the index.
 
 ```bash
 make dev-install
-gio mime x-scheme-handler/https   # wissel.desktop appears under "Recommended applications"
+# io.github.x7c1.wissel.desktop appears under "Recommended applications"
+gio mime x-scheme-handler/https
 ```
 
 This only makes wissel a candidate. Note the current default so you can
@@ -45,19 +49,22 @@ xdg-settings get default-web-browser
 ```
 
 - Settings → Apps → Default Apps → Web → choose **wissel**
-- `xdg-settings set default-web-browser wissel.desktop`
+- `xdg-settings set default-web-browser io.github.x7c1.wissel.desktop`
 
-To check, open a link. From a terminal, wissel prints the URL there:
+To check, open a link. wissel shows its picker; from a terminal, the desktop
+id of the browser you choose is printed there. wissel does not launch that
+browser yet, so the link does not open; restore the previous default (see
+[Undo](#undo)) when you are done checking:
 
 ```bash
 xdg-open https://example.com
 ```
 
 From a GUI application, the output lands in the user journal under the
-identifier `wissel.desktop`:
+identifier `io.github.x7c1.wissel.desktop`:
 
 ```bash
-journalctl --user -t wissel.desktop -n 5
+journalctl --user -t io.github.x7c1.wissel.desktop -n 5
 ```
 
 ## Undo
@@ -67,4 +74,14 @@ Restore the previous default, then remove the entry:
 ```bash
 xdg-settings set default-web-browser <previous>.desktop
 make dev-uninstall
+```
+
+Development entries installed before the desktop entry was renamed are called
+`wissel.desktop`. While one is installed, the picker lists it as a browser
+named wissel. `make dev-uninstall` does not remove them; if the default
+browser is still `wissel.desktop`, restore the previous default first, then:
+
+```bash
+rm ~/.local/share/applications/wissel.desktop
+update-desktop-database ~/.local/share/applications
 ```

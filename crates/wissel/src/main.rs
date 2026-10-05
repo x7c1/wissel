@@ -1,11 +1,17 @@
 //! wissel is launched by the desktop as the default web browser. The URLs to
-//! open arrive as command-line arguments (`Exec=wissel %u`). The picker UI and
-//! the hand-off to the chosen browser are not implemented yet.
+//! open arrive as command-line arguments (`Exec=wissel %u`).
+//!
+//! `wissel <url>...` shows a window listing the installed browsers. Choosing
+//! one prints its desktop id on stdout and exits 0; closing the window or
+//! pressing Escape exits 1 with nothing on stdout. Launching the chosen
+//! browser is not implemented yet.
 //!
 //! `wissel --list` prints the detected browsers, one per line, as
 //! `<id>\t<name>\t<icon>`.
 
 mod browsers;
+mod picker;
+mod shortcuts;
 
 use std::process::ExitCode;
 
@@ -19,10 +25,13 @@ fn main() -> ExitCode {
         list();
         return ExitCode::SUCCESS;
     }
-    for url in &args {
-        println!("{url}");
+    match picker::pick(&args, browsers::installed()) {
+        Some(browser) => {
+            println!("{}", browser.id);
+            ExitCode::SUCCESS
+        }
+        None => ExitCode::FAILURE,
     }
-    ExitCode::SUCCESS
 }
 
 fn list() {

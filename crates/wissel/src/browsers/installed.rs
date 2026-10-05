@@ -6,7 +6,7 @@ use super::Browser;
 const HTTPS_SCHEME: &str = "x-scheme-handler/https";
 
 /// The desktop file id of wissel itself, which must never be offered.
-const SELF_ID: &str = "wissel.desktop";
+const SELF_ID: &str = "io.github.x7c1.wissel.desktop";
 
 /// Lists the installed browsers, sorted by name case-insensitively and then
 /// by id.

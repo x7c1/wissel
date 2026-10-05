@@ -14,14 +14,16 @@ Pre-0.1. Under active development; nothing to install yet. The first target is U
 
 ## Getting started
 
-Building needs Rust, `pkg-config`, and the GLib development files
-(`sudo apt install pkg-config libglib2.0-dev` on Ubuntu).
+Building needs Rust, `pkg-config`, and the GTK 4 and libadwaita development
+files (`sudo apt install pkg-config libgtk-4-dev libadwaita-1-dev` on Ubuntu).
 
 ```bash
 git clone https://github.com/x7c1/wissel.git
 cd wissel
 make dev-install   # builds and registers the debug binary as a browser candidate
 ```
+
+This installs `data/io.github.x7c1.wissel.desktop` for the current user.
 
 Then choose wissel under Settings → Apps → Default Apps → Web.
 

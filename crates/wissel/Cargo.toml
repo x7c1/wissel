@@ -8,3 +8,5 @@ repository = "https://github.com/x7c1/wissel"
 
 [dependencies]
 gio = "0.22.10"
+gtk4 = { version = "0.11", features = ["v4_2"] }
+libadwaita = { version = "0.9", features = ["v1_4"] }
