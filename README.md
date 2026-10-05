@@ -17,8 +17,13 @@ Pre-0.1. Under active development; nothing to install yet. The first target is U
 ```bash
 git clone https://github.com/x7c1/wissel.git
 cd wissel
-cargo build
+make dev-install   # builds and registers the debug binary as a browser candidate
 ```
+
+Then choose wissel under Settings → Apps → Default Apps → Web.
+
+See [docs/guides/20-default-browser.md](docs/guides/20-default-browser.md)
+for how this works and how to undo it.
 
 ## Documentation
 
