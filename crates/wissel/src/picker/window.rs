@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 use std::rc::Rc;
 
 use gtk4 as gtk;
@@ -9,6 +8,7 @@ use libadwaita as adw;
 use libadwaita::prelude::*;
 
 use super::row;
+use super::OnChoose;
 use crate::browsers::Browser;
 use crate::shortcuts;
 
@@ -17,14 +17,14 @@ const MAX_LIST_HEIGHT: i32 = 480;
 
 /// Builds and shows the picker window.
 ///
-/// Choosing a browser stores it in `chosen` and closes the window; cancelling
-/// closes the window and leaves `chosen` empty.
+/// Choosing a browser calls `on_choose` with it and the window's launch
+/// context, then closes the window; cancelling just closes the window.
 pub fn present(
     app: &adw::Application,
     first_url: &str,
     url_count: usize,
     browsers: &Rc<Vec<Browser>>,
-    chosen: &Rc<RefCell<Option<Browser>>>,
+    on_choose: &OnChoose,
 ) {
     let window = adw::ApplicationWindow::builder()
         .application(app)
@@ -54,13 +54,13 @@ pub fn present(
     let choose = {
         let window = window.downgrade();
         let browsers = Rc::clone(browsers);
-        let chosen = Rc::clone(chosen);
+        let on_choose = Rc::clone(on_choose);
         move |index: usize| {
             let Some(browser) = browsers.get(index) else {
                 return;
             };
-            chosen.replace(Some(browser.clone()));
             if let Some(window) = window.upgrade() {
+                on_choose(browser, &WidgetExt::display(&window).app_launch_context());
                 window.close();
             }
         }

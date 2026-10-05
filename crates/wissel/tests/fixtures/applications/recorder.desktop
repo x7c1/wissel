@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Recorder
+Comment=Writes its URL arguments, one per line, to the file named by WISSEL_TEST_OUT
+Exec=/bin/sh -c "for u; do echo \\"\\$u\\"; done > \\"\\$WISSEL_TEST_OUT.tmp\\" && mv \\"\\$WISSEL_TEST_OUT.tmp\\" \\"\\$WISSEL_TEST_OUT\\"" sh %U
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
