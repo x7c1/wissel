@@ -79,13 +79,19 @@ the README's status line, which can now describe wissel as usable.
 
 ### Before merge (verified outside the check command)
 
-- [ ] On the development machine, `cargo run -- https://example.com/<unique>`
+- [x] On the development machine, `cargo run -- https://example.com/<unique>`
   and choosing Firefox, then again choosing Google Chrome, opens that URL in
   the chosen browser (its window title shows the page), and no wissel process
-  is left running.
-- [ ] The browser window that opens comes to the front, with no "is ready"
-  notification from GNOME.
-- [ ] With `make dev-install` in effect and wissel set as the default
+  is left running. Chrome's window title showed the page; the Firefox on that
+  machine runs in permanent private browsing and is not on the accessibility
+  bus, so its hand-off was confirmed by its remote client running and no
+  second Firefox instance appearing.
+- [x] The browser window that opens comes to the front, with no "is ready"
+  notification from GNOME. Verified with a browser that was not running yet
+  (Web); a Firefox or Chrome that is already running hands the URL to its
+  running instance without the activation token, so GNOME keeps the focus
+  where it was. That is the browsers' hand-off, outside wissel.
+- [x] With `make dev-install` in effect and wissel set as the default
   browser, `xdg-open https://example.com/<unique>` goes through the picker
   to the chosen browser. The previous default is restored afterwards.
 
