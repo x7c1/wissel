@@ -22,7 +22,6 @@ mod shortcuts;
 
 use std::process::ExitCode;
 
-use gtk4::gdk;
 use gtk4::prelude::*;
 
 const USAGE: &str = "usage: wissel <url>...
@@ -54,21 +53,25 @@ fn usage() -> ExitCode {
 }
 
 /// Shows the picker and opens `urls` in the chosen browser.
+///
+/// The launch happens inside the picker, while its window is still open, so
+/// the window's launch context hands the browser a valid activation token.
 fn pick(urls: &[String]) -> ExitCode {
-    let Some(browser) = picker::pick(urls, browsers::installed()) else {
-        return ExitCode::FAILURE;
-    };
-    // The display's context hands the browser an activation token, so that
-    // its window comes to the front instead of GNOME showing a "ready"
-    // notification.
-    match gdk::Display::default() {
-        Some(display) => launch(&browser.id, urls, &display.app_launch_context()),
-        None => launch(&browser.id, urls, &gio::AppLaunchContext::new()),
+    let launch_urls = urls.to_vec();
+    match picker::pick(urls, browsers::installed(), move |browser, context| {
+        browsers::launch(&browser.id, &launch_urls, context)
+    }) {
+        Some(launched) => report(launched),
+        None => ExitCode::FAILURE,
     }
 }
 
 fn launch(id: &str, urls: &[String], context: &impl IsA<gio::AppLaunchContext>) -> ExitCode {
-    match browsers::launch(id, urls, context) {
+    report(browsers::launch(id, urls, context))
+}
+
+fn report(launched: Result<(), browsers::LaunchError>) -> ExitCode {
+    match launched {
         Ok(()) => ExitCode::SUCCESS,
         Err(error) => {
             eprintln!("wissel: {error}");
