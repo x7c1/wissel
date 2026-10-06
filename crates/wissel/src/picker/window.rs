@@ -28,7 +28,7 @@ pub fn present(
 ) {
     let window = adw::ApplicationWindow::builder()
         .application(app)
-        .title("wissel")
+        .title("Wissel")
         .default_width(WIDTH)
         .resizable(false)
         .build();
