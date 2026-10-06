@@ -40,6 +40,17 @@ make dev-install
 gio mime x-scheme-handler/https
 ```
 
+If the build needs machine-specific settings, put them in `local.mk` next to
+the Makefile. Git ignores it and the Makefile includes it first. It may set
+`CARGO` (the command used for `cargo`) or export variables for every recipe.
+For example, when another C toolchain on `PATH` shadows the system one and
+the link step cannot find the GTK libraries:
+
+```make
+# local.mk
+export PATH := /usr/bin:$(PATH)
+```
+
 This only makes wissel a candidate. Note the current default so you can
 restore it later, then make wissel the default with either of these; both
 write `~/.config/mimeapps.list`:
