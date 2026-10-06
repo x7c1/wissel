@@ -1,4 +1,4 @@
-# wissel
+# Wissel
 
 Pick a browser every time you open a link.
 
