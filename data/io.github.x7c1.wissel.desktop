@@ -1,6 +1,6 @@
 [Desktop Entry]
 Type=Application
-Name=wissel
+Name=Wissel
 Comment=Pick a browser every time you open a link
 Exec=wissel %u
 Icon=web-browser
