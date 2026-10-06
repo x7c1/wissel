@@ -1,5 +1,10 @@
 # Development helpers.
+#
+# Machine-specific settings go in local.mk, which Git ignores; see
+# docs/guides/20-default-browser.md. It may set CARGO or export PATH.
+-include local.mk
 
+CARGO ?= cargo
 BIN := $(CURDIR)/target/debug/wissel
 APPS_DIR := $(if $(XDG_DATA_HOME),$(XDG_DATA_HOME),$(HOME)/.local/share)/applications
 DESKTOP := $(APPS_DIR)/io.github.x7c1.wissel.desktop
@@ -7,7 +12,7 @@ DESKTOP := $(APPS_DIR)/io.github.x7c1.wissel.desktop
 .PHONY: build dev-install dev-uninstall
 
 build:
-	cargo build
+	$(CARGO) build
 
 # Register the debug binary as a browser candidate for the current user.
 # The desktop entry points at the absolute path of the binary because
