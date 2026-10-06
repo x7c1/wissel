@@ -1,4 +1,4 @@
-# wissel
+# Wissel
 
 Pick a browser every time you open a link.
 
@@ -10,7 +10,19 @@ Pick a browser every time you open a link.
 
 ## Status
 
-Pre-0.1. Usable from a source checkout: set wissel as the default browser and every link opens in the browser you pick. There is no packaged release yet. The first target is Ubuntu (GNOME) on Wayland.
+Pre-0.1. Set wissel as the default browser and every link opens in the browser you pick. Releases ship a Debian package for Ubuntu 26.04 or later, the oldest supported release; the first target is Ubuntu (GNOME) on Wayland.
+
+## Install
+
+Download `wissel_<version>-1_amd64.deb` from the
+[latest GitHub Release](https://github.com/x7c1/wissel/releases/latest) and
+install it on Ubuntu 26.04 or later:
+
+```bash
+sudo apt install ./wissel_<version>-1_amd64.deb
+```
+
+Then choose Wissel under Settings → Apps → Default Apps → Web.
 
 ## Getting started
 
@@ -32,7 +44,8 @@ for how this works and how to undo it.
 
 ## Documentation
 
-- [docs/guides/](docs/guides/) — development guides
+- [docs/guides/](docs/guides/) — development guides, including
+  [how releases are cut](docs/guides/30-release.md)
 
 ## License
 
