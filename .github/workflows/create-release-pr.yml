@@ -1,0 +1,59 @@
+name: Create Release PR
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [edited]
+
+jobs:
+  create-release-pr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Gate both triggers:
+    # - push: skip the commit that merged a release PR (its message starts
+    #   with "Release v") — otherwise we'd loop, opening a new release PR
+    #   for the very release that just landed.
+    # - pull_request: only react to title edits (changes.title.from != null)
+    #   on an open PR labelled `release`, so body-only edits and bot
+    #   self-edits don't recurse.
+    if: |
+      (github.event_name == 'push' &&
+        !startsWith(github.event.head_commit.message, 'Release v')) ||
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.state == 'open' &&
+        contains(github.event.pull_request.labels.*.name, 'release') &&
+        github.event.changes.title.from != null)
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      # Both checkout's credential helper (used by the subsequent `git push`)
+      # and the script's `gh pr create` must authenticate as the PAT user, not
+      # as github-actions[bot]. GitHub's recursion-prevention rule does not
+      # auto-trigger `pull_request` workflows on bot-authored PRs, so a PR
+      # opened under GITHUB_TOKEN sits in `action_required` and never goes
+      # green. The PAT makes the resulting PR user-authored, which lets CI /
+      # Validate Release PR trigger on it normally.
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      # cargo-edit gives us `cargo set-version`, which is the safest way
+      # to bump the package version: it understands [package] boundaries
+      # so sed-style rewrites can't corrupt the file.
+      - name: Install cargo-edit
+        run: cargo install cargo-edit --locked
+
+      - name: Create or update release PR
+        run: .github/scripts/create-release-pr.sh
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_PAT }}

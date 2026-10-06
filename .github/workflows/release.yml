@@ -1,0 +1,147 @@
+name: Release
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only consider main runs that finished green: a red CI must never
+    # tag a release.
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    # Read by the deb job.
+    outputs:
+      changed: ${{ steps.version-check.outputs.changed }}
+      version: ${{ steps.version-check.outputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # cargo metadata reads the manifest, so the toolchain has to be
+      # available even when the version turns out to be unchanged.
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check if version changed
+        id: version-check
+        run: ./scripts/check-version-change.sh
+
+      # The Release body is the summary a developer wrote in the release PR,
+      # not the per-commit changelog — that stays on the PR itself (layout:
+      # docs/guides/30-release.md). This step runs before the tag is cut, so a
+      # missing summary aborts the run instead of publishing a Release
+      # nobody can read.
+      - name: Resolve release summary
+        if: steps.version-check.outputs.changed == 'true'
+        id: summary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.version-check.outputs.version }}
+        run: |
+          source .github/scripts/release-summary.sh
+          source .github/scripts/release-pr-lookup.sh
+
+          repo_url=$(gh repo view --json url --jq '.url')
+          last_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          pr_number=$(find_release_pr "$NEW_VERSION")
+          if [ -z "$pr_number" ]; then
+            echo "::error::No merged release PR found for v${NEW_VERSION}; its summary region is what this Release publishes. See docs/guides/30-release.md."
+            exit 1
+          fi
+
+          # Fetch in a statement of its own so a failed API call aborts the
+          # step rather than reading as an unwritten summary.
+          pr_body=$(gh pr view "$pr_number" --json body --jq '.body')
+          summary=$(summary_region "$pr_body")
+          if summary_is_unwritten "$summary"; then
+            echo "::error::Release PR #${pr_number} carries no release summary. Write it above the '$(changelog_marker)' marker in the PR body and delete the '$(summary_sentinel)' comment, then re-run this workflow. See docs/guides/30-release.md."
+            exit 1
+          fi
+
+          # Randomize the heredoc delimiter: the summary is free-form prose
+          # and must not be able to terminate its own output block.
+          delimiter="RELEASE_BODY_$(openssl rand -hex 16)"
+
+          {
+            echo "body<<${delimiter}"
+            printf '%s\n\n---\n\n' "$summary"
+            printf -- '- Full changelog: %s/pull/%s\n' "$repo_url" "$pr_number"
+            if [ -n "$last_tag" ]; then
+              printf -- '- Compare: [%s...v%s](%s/compare/%s...v%s)\n' \
+                "$last_tag" "$NEW_VERSION" \
+                "$repo_url" "$last_tag" "$NEW_VERSION"
+            fi
+            echo "${delimiter}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        if: steps.version-check.outputs.changed == 'true'
+        id: gh-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version-check.outputs.version }}
+          name: Release v${{ steps.version-check.outputs.version }}
+          body: ${{ steps.summary.outputs.body }}
+
+      - name: Rewrite release PR links to point at the tag
+        if: steps.version-check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ steps.version-check.outputs.version }}
+        run: .github/scripts/update-release-pr-links.sh "$NEW_VERSION"
+
+  # Runs after the Release exists, so a package failure never undoes the
+  # tag or the Release: it shows up as a failed run of this job to re-run
+  # (docs/guides/30-release.md, "The package").
+  deb:
+    needs: release
+    if: ${{ needs.release.outputs.changed == 'true' }}
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      # Build the tagged commit, not whatever main has moved on to since.
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.release.outputs.version }}
+
+      # Built on Ubuntu 26.04, the oldest release the package supports, so
+      # the dependencies cargo-deb derives match that release's libraries.
+      - name: Install GTK 4 and libadwaita
+        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install cargo-deb
+        run: cargo install cargo-deb --locked
+
+      - name: Build the package
+        id: build
+        run: |
+          cargo deb --locked -p wissel
+          file=$(ls target/debian/wissel_*.deb)
+          echo "file=${file}" >> "$GITHUB_OUTPUT"
+
+      - name: Attach the package to the Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "v${{ needs.release.outputs.version }}" "${{ steps.build.outputs.file }}"
