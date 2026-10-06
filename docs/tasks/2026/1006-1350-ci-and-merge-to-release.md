@@ -106,7 +106,7 @@ Documentation:
 
 ### Before merge (verified outside the check command)
 
-- [ ] On the development machine, `cargo deb` produces
+- [x] On the development machine, `cargo deb` produces
   `target/debian/wissel_<version>-1_amd64.deb`; `dpkg-deb -c` lists
   `./usr/bin/wissel` and `./usr/share/applications/io.github.x7c1.wissel.desktop`,
   and `dpkg-deb -f ... Depends` names `libgtk-4-1` and `libadwaita-1-0`.
