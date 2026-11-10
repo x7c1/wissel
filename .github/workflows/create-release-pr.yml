@@ -39,7 +39,7 @@ jobs:
       # green. The PAT makes the resulting PR user-authored, which lets CI /
       # Validate Release PR trigger on it normally.
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_PAT }}
