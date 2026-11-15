@@ -72,7 +72,7 @@ jobs:
         run: cargo deb --locked -p wissel
 
       - name: Upload the package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wissel-deb
           path: target/debian/wissel_*.deb
