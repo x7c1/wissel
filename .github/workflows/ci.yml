@@ -15,8 +15,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install GTK 4 and libadwaita
-        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+      - name: Install system packages
+        run: scripts/setup-system.sh
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -48,8 +48,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install GTK 4 and libadwaita
-        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+      - name: Install system packages
+        run: scripts/setup-system.sh
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable

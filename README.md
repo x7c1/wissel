@@ -27,7 +27,7 @@ Then choose Wissel under Settings → Apps → Default Apps → Web.
 ## Getting started
 
 Building needs Rust, `pkg-config`, and the GTK 4 and libadwaita development
-files (`sudo apt install pkg-config libgtk-4-dev libadwaita-1-dev` on Ubuntu).
+files. On Ubuntu, `scripts/setup-system.sh` installs everything except Rust.
 
 ```bash
 git clone https://github.com/x7c1/wissel.git
