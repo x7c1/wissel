@@ -125,8 +125,8 @@ jobs:
 
       # Built on Ubuntu 26.04, the oldest release the package supports, so
       # the dependencies cargo-deb derives match that release's libraries.
-      - name: Install GTK 4 and libadwaita
-        run: sudo apt-get update && sudo apt-get install -y libgtk-4-dev libadwaita-1-dev
+      - name: Install system packages
+        run: scripts/setup-system.sh
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
