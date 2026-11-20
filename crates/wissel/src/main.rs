@@ -15,10 +15,14 @@
 //!
 //! When a browser cannot be launched, wissel prints the reason on stderr and
 //! exits 1.
+//!
+//! When wissel's working directory no longer exists, the browser is started
+//! from `$HOME`, or from `/` when that cannot be entered.
 
 mod browsers;
 mod picker;
 mod shortcuts;
+mod working_dir;
 
 use std::process::ExitCode;
 
@@ -29,6 +33,7 @@ const USAGE: &str = "usage: wissel <url>...
        wissel --list";
 
 fn main() -> ExitCode {
+    working_dir::ensure_working_dir();
     let args: Vec<String> = std::env::args().skip(1).collect();
     match args.first().map(String::as_str) {
         None => usage(),

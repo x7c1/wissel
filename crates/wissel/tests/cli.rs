@@ -47,12 +47,33 @@ fn run(args: &[&str]) -> Output {
 /// Like [`run`], with extra environment variables for wissel and the
 /// processes it launches.
 fn run_with_env(args: &[&str], env: &[(&str, &Path)]) -> Output {
+    let mut command = Command::new(env!("CARGO_BIN_EXE_wissel"));
+    command.args(args);
+    output_of(command, env)
+}
+
+/// Runs wissel with `args` from a working directory that has been deleted.
+///
+/// A child process cannot be spawned in a directory that no longer exists, so
+/// a shell creates a directory, enters it, removes it and then becomes wissel.
+fn run_from_deleted_dir(args: &[&str], env: &[(&str, &Path)]) -> Output {
+    let mut command = Command::new("/bin/sh");
+    command
+        .arg("-c")
+        .arg(r#"dir=$(mktemp -d) && cd "$dir" && rmdir "$dir" && exec "$0" "$@""#)
+        .arg(env!("CARGO_BIN_EXE_wissel"))
+        .args(args);
+    output_of(command, env)
+}
+
+/// Runs `command` against the committed fixture data directory, with extra
+/// environment variables for wissel and the processes it launches.
+fn output_of(mut command: Command, env: &[(&str, &Path)]) -> Output {
     let fixtures = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures");
     let data_home = TempDir::new();
     let config_home = TempDir::new();
     let config_dirs = TempDir::new();
-    Command::new(env!("CARGO_BIN_EXE_wissel"))
-        .args(args)
+    command
         .env("XDG_DATA_DIRS", &fixtures)
         .env("XDG_DATA_HOME", data_home.path())
         .env("XDG_CONFIG_HOME", config_home.path())
@@ -151,4 +172,62 @@ fn unknown_option_fails_with_usage_instead_of_showing_the_picker() {
     assert_eq!(output.status.code(), Some(1), "{output:?}");
     assert!(output.stdout.is_empty(), "{output:?}");
     assert!(stderr(&output).starts_with("usage:"), "{output:?}");
+}
+
+/// Reads the working directory `cwd-recorder.desktop` was launched in.
+fn launched_dir(out: &Path) -> PathBuf {
+    PathBuf::from(wait_for_file(out).trim_end_matches('\n'))
+}
+
+#[test]
+fn open_from_a_deleted_working_directory_launches_from_home() {
+    let home = TempDir::new();
+    let out_dir = TempDir::new();
+    let out = out_dir.path().join("cwd");
+    let output = run_from_deleted_dir(
+        &["--open", "cwd-recorder.desktop", "https://example.com"],
+        &[("HOME", home.path()), ("WISSEL_TEST_OUT", &out)],
+    );
+    assert!(output.status.success(), "{output:?}");
+    assert!(output.stdout.is_empty(), "{output:?}");
+    assert!(output.stderr.is_empty(), "{output:?}");
+    assert_eq!(
+        launched_dir(&out),
+        home.path().canonicalize().expect("canonicalize HOME")
+    );
+}
+
+#[test]
+fn open_from_a_deleted_working_directory_without_home_launches_from_root() {
+    let missing = TempDir::new();
+    let home = missing.path().join("missing");
+    let out_dir = TempDir::new();
+    let out = out_dir.path().join("cwd");
+    let output = run_from_deleted_dir(
+        &["--open", "cwd-recorder.desktop", "https://example.com"],
+        &[("HOME", &home), ("WISSEL_TEST_OUT", &out)],
+    );
+    assert!(output.status.success(), "{output:?}");
+    assert!(output.stdout.is_empty(), "{output:?}");
+    assert_eq!(launched_dir(&out), Path::new("/"));
+}
+
+#[test]
+fn open_keeps_a_working_directory_that_exists() {
+    let home = TempDir::new();
+    let cwd = TempDir::new();
+    let out_dir = TempDir::new();
+    let out = out_dir.path().join("cwd");
+    let mut command = Command::new(env!("CARGO_BIN_EXE_wissel"));
+    command
+        .args(["--open", "cwd-recorder.desktop", "https://example.com"])
+        .current_dir(cwd.path());
+    let output = output_of(command, &[("HOME", home.path()), ("WISSEL_TEST_OUT", &out)]);
+    assert!(output.status.success(), "{output:?}");
+    assert_eq!(
+        launched_dir(&out),
+        cwd.path()
+            .canonicalize()
+            .expect("canonicalize working directory")
+    );
 }
