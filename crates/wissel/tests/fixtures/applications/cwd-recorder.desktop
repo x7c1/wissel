@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Working Directory Recorder
+Comment=Writes its physical working directory to the file named by WISSEL_TEST_OUT
+Exec=/bin/sh -c "pwd -P > \\"\\$WISSEL_TEST_OUT.tmp\\" && mv \\"\\$WISSEL_TEST_OUT.tmp\\" \\"\\$WISSEL_TEST_OUT\\"" sh %U
+NoDisplay=true
+MimeType=x-scheme-handler/http;x-scheme-handler/https;
